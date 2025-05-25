@@ -6,6 +6,8 @@ const cors = require("cors");
 const createError = require("http-errors");
 const allRoutes = require("./routes/mainRoutes");
 
+const allowedOrigins = ["http://localhost:3000"];
+
 // For app.use
 app.use(
   cors({

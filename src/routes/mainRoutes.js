@@ -1,16 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const authenticate = require("../helper/authMiddleware");
-const ContactForm = require("./contactRoutes/contactRoutes");
-const AuthRoute = require("../helper/authRoute");
+const Auth = require("./AuthRoutes/AuthRoutes");
 
-router.use("/auth", AuthRoute);
+router.use("/auth", Auth);
 
-router.use(authenticate);
 
-router.use(
-  "/api",
-  ContactForm,
-);
+// router.use(
+//   "/api",
+// );
 
 module.exports = router;
