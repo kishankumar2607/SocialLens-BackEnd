@@ -1,9 +1,13 @@
+# Node modules and build
 /node_modules/
+.vercel/
+.next/
+dist/
 
-/package-lock.json/
-
-/.env/
-
+# Env and logs
+.env
+.env.*
 *.log
 
-.vercel
+# Lock file
+/package-lock.json
