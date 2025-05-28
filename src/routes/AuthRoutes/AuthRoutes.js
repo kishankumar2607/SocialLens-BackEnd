@@ -1,3 +1,4 @@
+
 const express = require("express");
 const router = express.Router();
 const {
@@ -6,9 +7,10 @@ const {
   forgotPassword,
   verifyOtp,
   resetPassword,
-} = require("../../controllers/AuthController/AuthController");
+} = require("../../controllers/authController/authController");
 const protect = require("../../helper/authMiddleware");
 
+//Auth Routes
 router.post("/register", register);
 router.post("/login", login);
 router.post("/forgot-password", forgotPassword);

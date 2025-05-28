@@ -1,4 +1,4 @@
-const User = require("../../models/UserModel/UserModel");
+const User = require("../../models/userModel/userModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const secretKey = process.env.SECRET_KEY;
