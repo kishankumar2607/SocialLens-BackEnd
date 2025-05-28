@@ -104,7 +104,9 @@ exports.verifyOtp = async (req, res, next) => {
       return res.status(400).json({ message: "Email and code are required" });
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select(
+      "+resetPasswordCode +resetPasswordExpires"
+    );
     if (
       !user ||
       user.resetPasswordCode !== code ||
@@ -113,32 +115,24 @@ exports.verifyOtp = async (req, res, next) => {
       return res.status(400).json({ message: "Invalid or expired code" });
     }
 
-    // Clear the reset code and expiration
-    user.resetPasswordCode = null;
-    user.resetPasswordExpires = null;
-    await user.save();
-
     res.status(200).json({ message: "Code verified successfully" });
   } catch (err) {
     next(err);
   }
 };
 
-exports.resetPassword = async (req, res) => {
+exports.resetPassword = async (req, res, next) => {
   try {
     const { email, newPassword, resetCode } = req.body;
-
     if (!email || !newPassword || !resetCode) {
       return res
         .status(400)
         .json({ message: "Email, new password, and reset code are required." });
     }
 
-    // Find user and include sensitive fields (password, resetPasswordCode, and resetPasswordExpires)
     const user = await User.findOne({ email }).select(
       "+password +resetPasswordCode +resetPasswordExpires"
     );
-
     if (
       !user ||
       user.resetPasswordCode !== resetCode ||
@@ -149,19 +143,12 @@ exports.resetPassword = async (req, res) => {
         .json({ message: "Invalid or expired reset request" });
     }
 
-    // Compare old and new passwords
-    const isSamePassword = await bcrypt.compare(newPassword, user.password);
-    if (isSamePassword) {
-      return res.status(400).json({
-        message: "New password must not be the same as the previous password.",
-      });
-    }
+    user.password = newPassword;
 
-    // Hash and save the new password
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    user.password = hashedPassword;
-    user.resetPasswordCode = undefined; // Clear the reset code
-    user.resetPasswordExpires = undefined; // Clear the expiration
+    // Now clear the OTP + expiry
+    user.resetPasswordCode = undefined;
+    user.resetPasswordExpires = undefined;
+
     await user.save();
 
     return res
