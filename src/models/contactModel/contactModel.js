@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const contactSchema = new mongoose.Schema({
-  FullName: {
+  fullName: {
     type: String,
     required: [true, "Full name is requires"],
     trim: true,
@@ -10,7 +10,7 @@ const contactSchema = new mongoose.Schema({
     maxlength: [50, "First name cannot exceed 50 characters"],
   },
 
-  Email: {
+  email: {
     type: String,
     required: [true, "Email is required"],
     trim: true,
@@ -18,16 +18,15 @@ const contactSchema = new mongoose.Schema({
       /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
       "Please enter a valid email address",
     ],
-    unique: true,
   },
 
-  Message: {
+  message: {
     type: String,
     required: [true, "Message is required"],
     trim: true,
     minlength: [10, "Message must be at least 10 characters"],
     maxlength: [500, "Message cannot exceed 500 characters"],
-  }
+  },
 });
 
 const Contact = mongoose.model("Contact", contactSchema);
