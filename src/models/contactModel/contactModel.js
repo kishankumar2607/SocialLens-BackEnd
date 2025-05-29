@@ -3,11 +3,11 @@ const mongoose = require("mongoose");
 const contactSchema = new mongoose.Schema({
   fullName: {
     type: String,
-    required: [true, "Full name is requires"],
+    required: [true, "Name is requires"],
     trim: true,
     match: /^[a-zA-Z\s]*$/,
     minlength: [2, "Name must be at least 2 characters"],
-    maxlength: [50, "First name cannot exceed 50 characters"],
+    maxlength: [50, "Name cannot exceed 50 characters"],
   },
 
   email: {

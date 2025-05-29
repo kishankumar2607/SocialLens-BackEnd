@@ -7,10 +7,10 @@ exports.postContact = async (req, res) => {
     await newContact.validate();
     await newContact.save();
 
-    // await contactEmailService.sendEmailToYourself(newContact);
+    await contactEmailService.sendEmailToYourself(newContact);
     await contactEmailService.sendConfirmationEmail(newContact);
 
-    res.status(201).json({ message: "Contact added successfully" });
+    res.status(201).json({ message: "Thank you so much for your interest. We will get back to you shortly." });
   } catch (error) {
     if (error.name === "ValidationError") {
       const validationErrors = {};
@@ -18,11 +18,11 @@ exports.postContact = async (req, res) => {
       for (const key in error.errors) {
         let customerErrorMessage = "Validation Error";
 
-        if ((key = "FullName")) {
+        if ((key = "fullName")) {
           customerErrorMessage = "Name is required";
-        } else if ((key = "Email")) {
+        } else if ((key = "email")) {
           customerErrorMessage = "Email is required";
-        } else if ((key = "Message")) {
+        } else if ((key = "message")) {
           customerErrorMessage = "Message is required";
         }
         validationErrors[key] = customerErrorMessage;
