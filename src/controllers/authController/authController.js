@@ -4,9 +4,11 @@ const bcrypt = require("bcrypt");
 const secretKey = process.env.SECRET_KEY;
 const sendResetPasswordEmail = require("../../helper/emailService");
 
+//Get signin token code
 const signToken = (userId) =>
   jwt.sign({ id: userId }, secretKey, { expiresIn: "7d" });
 
+//Registration code
 exports.register = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
@@ -26,14 +28,16 @@ exports.register = async (req, res, next) => {
 
     const token = signToken(user._id);
     res.status(201).json({
-      token,
-      user: { id: user._id, name: user.name, email: user.email },
+      message: "Registration successful!",
+      // token,
+      // user: { id: user._id, name: user.name, email: user.email },
     });
   } catch (err) {
     next(err);
   }
 };
 
+//Login code
 exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -56,15 +60,20 @@ exports.login = async (req, res, next) => {
 
     const token = signToken(user._id);
 
-    res.json({
+    res.status(200).json({
+      message: "Login successful",
       token,
-      user: { id: user._id, name: user.name, email: user.email },
+      user: {
+        name: user.name,
+        email: user.email,
+      },
     });
   } catch (err) {
     next(err);
   }
 };
 
+//Forgot password and send OTP code
 exports.forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
@@ -96,6 +105,7 @@ exports.forgotPassword = async (req, res, next) => {
   }
 };
 
+//Verify OTP code
 exports.verifyOtp = async (req, res, next) => {
   try {
     const { email, code } = req.body;
@@ -121,6 +131,7 @@ exports.verifyOtp = async (req, res, next) => {
   }
 };
 
+//Reset password code
 exports.resetPassword = async (req, res, next) => {
   try {
     const { email, newPassword, resetCode } = req.body;
@@ -159,5 +170,27 @@ exports.resetPassword = async (req, res, next) => {
     return res
       .status(500)
       .json({ message: "Internal server error. Please try again later." });
+  }
+};
+
+//Delete account code
+exports.deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    await User.findByIdAndDelete(userId);
+    return res
+      .status(200)
+      .json({ message: "Account has been deleted successfully." });
+  } catch (error) {
+    console.error("Delete Account Error:", error);
+    return res
+      .status(500)
+      .json({ message: "Internal server error. Please try again later" });
   }
 };
