@@ -27,6 +27,13 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    tokens: [
+      {
+        token: { type: String, required: true },
+        createdAt: { type: Date, default: Date.now },
+        expiresAt: { type: Date },
+      },
+    ],
   },
   { timestamps: true }
 );

@@ -60,6 +60,15 @@ exports.login = async (req, res, next) => {
 
     const token = signToken(user._id);
 
+    // store it in the user document
+    await User.findByIdAndUpdate(user._id, {
+      $set: {
+        tokens: [{ token, expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000 }],
+      },
+    });
+
+    await user.save();
+
     res.status(200).json({
       message: "Login successful",
       token,
@@ -192,5 +201,28 @@ exports.deleteAccount = async (req, res) => {
     return res
       .status(500)
       .json({ message: "Internal server error. Please try again later" });
+  }
+};
+
+//Logout Code
+exports.logout = async (req, res, next) => {
+  try {
+    const raw = req.headers.authorization || "";
+    const token = raw.split(" ")[1];
+    if (!token) {
+      return res.status(400).json({ message: "No token provided." });
+    }
+
+    const user = await User.findById(req.user.id).select("+tokens");
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    user.tokens = user.tokens.filter((t) => t.token !== token);
+    await user.save();
+
+    res.status(200).json({ message: "Logged out successfully." });
+  } catch (err) {
+    next(err);
   }
 };

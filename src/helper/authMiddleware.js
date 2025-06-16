@@ -28,6 +28,12 @@ exports.protect = async (req, res, next) => {
       return res.status(404).json({ message: "User not found." });
     }
 
+    const stillValid = user.tokens.some((t) => t.token === token);
+    if (!stillValid) {
+      return res.status(401).json({ message: "Token has been revoked." });
+    }
+
+    req.token = token;
     req.user = user;
     next();
   } catch (error) {

@@ -6,6 +6,7 @@ const {protect} = require("../../helper/authMiddleware");
 //Auth Routes
 router.post("/register", Auth.register);
 router.post("/login", Auth.login);
+router.delete("/logout", protect, Auth.logout);
 router.post("/forgot-password", Auth.forgotPassword);
 router.post("/verify-otp", Auth.verifyOtp);
 router.post("/reset-password", Auth.resetPassword);
