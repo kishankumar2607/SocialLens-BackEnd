@@ -5,7 +5,10 @@ const uri = process.env.URI;
 
 // Database connection with MongoDB
 mongoose
-  .connect(uri)
+  .connect(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => {
     console.log("Connected to MongoDB");
   })
@@ -13,12 +16,12 @@ mongoose
     console.error("Error connecting to MongoDB:", error);
   });
 
-db.on("open", () => {
+db.once("open", () => {
   console.log("Database is open");
 });
 
 db.on("error", (err) => {
-  console.log(err);
+  console.error("Database connection error:", err);
 });
 
 db.on("close", () => {
