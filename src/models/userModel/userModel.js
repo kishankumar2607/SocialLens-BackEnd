@@ -1,6 +1,38 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
+const isValidUrl = (url) => {
+  try {
+    const urlRegex =
+      /^https?:\/\/([\w-]+\.)+[\w-]+\/[\w\-._~:/?#[\]@!$&'()*+,;=]+$/i;
+    return url === "" || urlRegex.test(url);
+  } catch (e) {
+    return false;
+  }
+};
+
+const accountField = {
+  connected: {
+    type: Boolean,
+    default: false,
+  },
+  url: {
+    type: String,
+    default: "",
+    trim: true,
+    set: (v) => {
+      if (v && !/^https?:\/\//i.test(v)) {
+        return `https://${v}`;
+      }
+      return v;
+    },
+    validate: {
+      validator: isValidUrl,
+      message: (props) => `${props.value} is not a valid URL`,
+    },
+  },
+};
+
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -26,6 +58,12 @@ const userSchema = new mongoose.Schema(
     resetPasswordExpires: {
       type: Date,
       default: null,
+    },
+    accounts: {
+      instagram: accountField,
+      twitter: accountField,
+      facebook: accountField,
+      linkedin: accountField,
     },
     tokens: [
       {
