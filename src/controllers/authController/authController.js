@@ -226,3 +226,38 @@ exports.logout = async (req, res, next) => {
     next(err);
   }
 };
+
+//Update user profile code
+exports.updateUserProfile = async (req, res) => {
+  try {
+    const userId = req.user._id; // from protect middleware
+    const { name, phoneNumber, phoneCountryCode } = req.body;
+
+    if (!name || !phoneNumber || !phoneCountryCode) {
+      return res
+        .status(400)
+        .json({ message: "Name and phone number are required." });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { name, phoneNumber, phoneCountryCode },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    res.status(200).json({
+      message: "Profile updated successfully.",
+      user: {
+        name: updatedUser.name,
+        phoneNumber: updatedUser.phoneNumber,
+        phoneCountryCode: updatedUser.phoneCountryCode,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Update failed", error: err.message });
+  }
+};

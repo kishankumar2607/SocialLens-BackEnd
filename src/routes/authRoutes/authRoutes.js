@@ -11,5 +11,6 @@ router.post("/forgot-password", Auth.forgotPassword);
 router.post("/verify-otp", Auth.verifyOtp);
 router.post("/reset-password", Auth.resetPassword);
 router.delete("/delete-account", protect, Auth.deleteAccount);
+router.put("/profile", protect, Auth.updateUserProfile);
 
 module.exports = router;
