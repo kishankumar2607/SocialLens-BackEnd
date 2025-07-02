@@ -21,7 +21,9 @@ exports.register = async (req, res, next) => {
 
     const existing = await User.findOne({ email });
     if (existing) {
-      return res.status(409).json({ message: "Email already in use" });
+      return res
+        .status(409)
+        .json({ message: "Email already in use, Please Login" });
     }
 
     const user = await User.create({ name, email, password });
@@ -262,7 +264,7 @@ exports.updateUserProfile = async (req, res) => {
   }
 };
 
-//update password using old password code
+//Update password using old password code
 exports.updatePassword = async (req, res) => {
   try {
     const userId = req.user._id; // from protect middleware
@@ -284,6 +286,14 @@ exports.updatePassword = async (req, res) => {
       return res.status(401).json({ message: "Old password is incorrect." });
     }
 
+    //check if new password is same as old password
+    const isSamePassword = await bcrypt.compare(newPassword, user.password);
+    if (isSamePassword) {
+      return res
+        .status(400)
+        .json({ message: "New password cannot be the same as old password." });
+    }
+
     user.password = newPassword;
     await user.save();
 
@@ -292,5 +302,36 @@ exports.updatePassword = async (req, res) => {
     res
       .status(500)
       .json({ message: "Change password failed", error: err.message });
+  }
+};
+
+//Email notification code
+exports.updateEmailNotification = async (req, res) => {
+  try {
+    const userId = req.user._id; // from protect middleware
+    const { emailNotification } = req.body;
+
+    if (typeof emailNotification !== "boolean") {
+      return res
+        .status(400)
+        .json({ message: "Email notification preference must be a boolean." });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { "notificationPreferences.email": emailNotification },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    res.status(200).json({
+      message: "Email notification preference updated successfully.",
+      emailNotification: updatedUser.notificationPreferences.email,
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Update failed", error: err.message });
   }
 };
