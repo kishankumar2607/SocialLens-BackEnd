@@ -75,6 +75,11 @@ const userSchema = new mongoose.Schema(
       facebook: accountField,
       linkedin: accountField,
     },
+    notificationPreferences: {
+      email: { type: Boolean, default: false },
+      // sms: { type: Boolean, default: false },
+      // push: { type: Boolean, default: false },
+    },
     tokens: [
       {
         token: { type: String, required: true },
