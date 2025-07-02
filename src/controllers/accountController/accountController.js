@@ -16,6 +16,7 @@ exports.getConnectedAccounts = async (req, res) => {
         accounts: user.accounts,
         phoneNumber: user.phoneNumber,
         phoneCountryCode: user.phoneCountryCode,
+        emailNotification: user.notificationPreferences.email,
       });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
