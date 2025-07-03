@@ -10,14 +10,12 @@ exports.getConnectedAccounts = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res
-      .status(200)
-      .json({
-        accounts: user.accounts,
-        phoneNumber: user.phoneNumber,
-        phoneCountryCode: user.phoneCountryCode,
-        emailNotification: user.notificationPreferences.email,
-      });
+    res.status(200).json({
+      accounts: user.accounts,
+      phoneNumber: user.phoneNumber,
+      phoneCountryCode: user.phoneCountryCode,
+      emailNotification: user.notificationPreferences.email,
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
@@ -38,9 +36,9 @@ exports.updateConnectedAccounts = async (req, res) => {
 
     for (const [platform, data] of Object.entries(accounts)) {
       if (validPlatforms.includes(platform) && typeof data === "object") {
-        if ("connected" in data)
-          updateData[`accounts.${platform}.connected`] = data.connected;
-        if ("url" in data) updateData[`accounts.${platform}.url`] = data.url;
+        for (const key in data) {
+          updateData[`accounts.${platform}.${key}`] = data[key];
+        }
       }
     }
 
