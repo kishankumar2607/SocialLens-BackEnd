@@ -3,8 +3,11 @@ const dotenv = require("dotenv");
 dotenv.config();
 const app = express();
 const cors = require("cors");
+const session = require("express-session");
+const passport = require("passport");
 const createError = require("http-errors");
 const allRoutes = require("./routes/mainRoutes");
+require("./config/passport");
 
 // const allowedOrigins = ["http://localhost:3000"];
 
@@ -29,6 +32,18 @@ app.use(
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Session setup BEFORE passport
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "keyboard cat",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Default Router Message
 app.get("/", (req, res, next) => {
