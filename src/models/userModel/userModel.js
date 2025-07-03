@@ -12,9 +12,15 @@ const isValidUrl = (url) => {
 };
 
 const accountField = {
-  connected: {
-    type: Boolean,
-    default: false,
+  id: {
+    type: String,
+    default: "",
+    trim: true,
+  },
+  name: {
+    type: String,
+    default: "",
+    trim: true,
   },
   url: {
     type: String,
@@ -30,6 +36,14 @@ const accountField = {
       validator: isValidUrl,
       message: (props) => `${props.value} is not a valid URL`,
     },
+  },
+  connected: {
+    type: Boolean,
+    default: false,
+  },
+  accessToken: {
+    type: String,
+    default: "",
   },
 };
 
@@ -70,10 +84,10 @@ const userSchema = new mongoose.Schema(
       default: null,
     },
     accounts: {
-      instagram: accountField,
-      twitter: accountField,
-      facebook: accountField,
       linkedin: accountField,
+      // instagram: accountField,
+      // twitter: accountField,
+      // facebook: accountField,
     },
     notificationPreferences: {
       email: { type: Boolean, default: false },
