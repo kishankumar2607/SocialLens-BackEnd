@@ -64,9 +64,20 @@ exports.login = async (req, res, next) => {
 
     // store it in the user document
     await User.findByIdAndUpdate(user._id, {
-      $set: {
-        tokens: [{ token, expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000 }],
+      $push: {
+        tokens: {
+          token,
+          expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000,
+        },
       },
+    });
+
+    res.cookie("auth_token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/", // ensures it's sent on all routes
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
     });
 
     await user.save();
@@ -77,6 +88,9 @@ exports.login = async (req, res, next) => {
       user: {
         name: user.name,
         email: user.email,
+      },
+      cookies: {
+        auth_token: req.cookies.auth_token,
       },
     });
   } catch (err) {
