@@ -4,34 +4,20 @@ dotenv.config();
 const app = express();
 const cors = require("cors");
 const session = require("express-session");
-const passport = require("passport");
 const createError = require("http-errors");
+const cookieParser = require("cookie-parser");
 const allRoutes = require("./routes/mainRoutes");
-require("./config/passport");
-
-// const allowedOrigins = ["http://localhost:3000"];
-
-// app.use(
-//   cors({
-//     origin: function (origin, callback) {
-//       if (!origin || allowedOrigins.includes(origin)) {
-//         callback(null, true);
-//       } else {
-//         callback(new Error("Not allowed by CORS"));
-//       }
-//     },
-//   })
-// );
 
 app.use(
   cors({
-    origin: true,
+    origin: process.env.FRONTEND_URL,
     credentials: true,
   })
 );
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Session setup BEFORE passport
 app.use(
@@ -41,9 +27,6 @@ app.use(
     saveUninitialized: false,
   })
 );
-
-app.use(passport.initialize());
-app.use(passport.session());
 
 // Default Router Message
 app.get("/", (req, res, next) => {
