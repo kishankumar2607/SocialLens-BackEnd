@@ -9,14 +9,4 @@ router.get("/accounts", protect, AccountController.getConnectedAccounts);
 // GET: LinkedIn account details
 router.get("/accounts/linkedin", protect, AccountController.getLinkedInAccount);
 
-// PUT: update one or more accounts
-router.put("/accounts", protect, AccountController.updateConnectedAccounts);
-
-// DELETE /api/:platform
-router.delete(
-  "/accounts/:platform",
-  protect,
-  AccountController.deleteConnectedAccount
-);
-
 module.exports = router;
