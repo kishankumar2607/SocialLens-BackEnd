@@ -186,15 +186,45 @@ exports.createComment = async (req, res, next) => {
 // DELETE /auth/linkedin/unlink
 exports.deleteAccount = async (req, res, next) => {
   try {
-    // Optionally revoke the token at LinkedIn:
-    // await axios.post("https://www.linkedin.com/oauth/v2/revoke", ...);
+    const linkedIn = req.user.accounts.linkedin || {};
+    const accessToken = linkedIn.accessToken;
 
-    // Remove it locally:
-    const user = await User.findById(req.user.id);
-    user.accounts.linkedin = { connected: false, accessToken: "" };
-    await user.save();
-    res.json({ success: true });
+    if (accessToken) {
+      await axios.post(
+        "https://www.linkedin.com/oauth/v2/revoke",
+        new URLSearchParams({
+          token,
+          client_id: CLIENT_ID,
+          client_secret: CLIENT_SECRET,
+        }).toString(),
+        { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+      );
+    }
   } catch (err) {
-    next(err);
+    console.log(err);
+  }
+
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    if (user) {
+      user.accounts.linkedin = {
+        id: "",
+        name: "",
+        url: "",
+        connected: false,
+        accessToken: "",
+      };
+
+      await user.save();
+
+      res.status(200).json({ message: "Account unlinked successfully" });
+    }
+  } catch (error) {
+    console.log(error);
   }
 };
