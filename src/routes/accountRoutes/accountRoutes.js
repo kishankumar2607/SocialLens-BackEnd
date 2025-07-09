@@ -6,6 +6,9 @@ const { protect } = require("../../helper/authMiddleware");
 // GET all connected accounts for current user
 router.get("/accounts", protect, AccountController.getConnectedAccounts);
 
+// GET: LinkedIn account details
+router.get("/accounts/linkedin", protect, AccountController.getLinkedInAccount);
+
 // PUT: update one or more accounts
 router.put("/accounts", protect, AccountController.updateConnectedAccounts);
 
