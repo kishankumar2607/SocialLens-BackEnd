@@ -1,27 +1,52 @@
 const express = require("express");
 const router = express.Router();
-const passport = require("passport");
+const asyncHandler = require("../../config/asyncHandler");
+const requireLinkedIn = require("../../helper/requireLinkedIn");
 const LinkedInController = require("../../controllers/linkedinController/linkedinController");
 
-// Route to initiate LinkedIn OAuth flow
-router.get("/linkedin", passport.authenticate("linkedin"));
+// If you also have a generic "logged in" check:
+const requireAuth = (req, res, next) => {
+  if (req.isAuthenticated()) return next();
+  res.status(401).json({ error: "Not signed in" });
+};
 
-// LinkedIn callback
+router.get("/", asyncHandler(LinkedInController.redirectToLinkedIn));
+
+router.get("/callback", asyncHandler(LinkedInController.handleCallback));
+
 router.get(
-  "/linkedin/callback",
-  passport.authenticate("linkedin", { failureRedirect: "/login" }),
-  (req, res) => {
-    res.redirect("/dashboard"); // after LinkedIn success
-  }
+  "/posts",
+  requireAuth,
+  requireLinkedIn,
+  LinkedInController.getPosts
 );
 
-// API endpoints for user
-router.get("/linkedin/profile", LinkedInController.getLinkedInProfile);
+router.get(
+  "/posts/:shareId/comments",
+  requireAuth,
+  requireLinkedIn,
+  LinkedInController.getComments
+);
 
-// Get LinkedIn followers
-router.get("/linkedin/followers", LinkedInController.getLinkedInFollowers);
+router.post(
+  "/posts",
+  requireAuth,
+  requireLinkedIn,
+  LinkedInController.createPost
+);
 
-// Post to LinkedIn feed
-router.post("/linkedin/post", LinkedInController.createLinkedInPost);
+router.post(
+  "/posts/:shareId/comments",
+  requireAuth,
+  requireLinkedIn,
+  LinkedInController.createComment
+);
+
+router.delete(
+  "/unlink",
+  requireAuth,
+  requireLinkedIn,
+  LinkedInController.deleteAccount
+);
 
 module.exports = router;
