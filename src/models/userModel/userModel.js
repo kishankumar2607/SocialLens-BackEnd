@@ -22,7 +22,7 @@ const accountField = {
     default: "",
     trim: true,
   },
-  url: {
+  profileURL: {
     type: String,
     default: "",
     trim: true,
