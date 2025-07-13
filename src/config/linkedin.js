@@ -8,5 +8,10 @@ module.exports = {
   CLIENT_ID: process.env.LINKEDIN_CLIENT_ID,
   CLIENT_SECRET: process.env.LINKEDIN_CLIENT_SECRET,
   CALLBACK_URL: process.env.LINKEDIN_CALLBACK_URL,
-  SCOPES: ["openid", "profile", "email", "w_member_social"].join(" "),
+  SCOPES: [
+    "openid",
+    "profile",
+    "email",
+    "w_member_social",
+  ].join(" "),
 };
