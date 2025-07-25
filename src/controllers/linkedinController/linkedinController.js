@@ -77,6 +77,8 @@ exports.handleCallback = async (req, res, next) => {
     });
     const claims = profileRes.data;
 
+    // console.log("LinkedIn claims:", claims);
+
     // link to user
     const user = await User.findById(linkReq.userId);
     if (!user) return res.status(404).send("User not found");
@@ -84,7 +86,7 @@ exports.handleCallback = async (req, res, next) => {
     user.accounts.linkedin = {
       id: claims.sub || "",
       name: claims.name || "",
-      url: "",
+      profileURL: "",
       connected: true,
       accessToken,
     };
@@ -193,7 +195,7 @@ exports.deleteAccount = async (req, res, next) => {
       await axios.post(
         "https://www.linkedin.com/oauth/v2/revoke",
         new URLSearchParams({
-          token,
+          token: accessToken,
           client_id: CLIENT_ID,
           client_secret: CLIENT_SECRET,
         }).toString(),
