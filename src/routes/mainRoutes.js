@@ -5,11 +5,12 @@ const Contact = require("./contactRoutes/contactRoutes");
 const Support = require("./supportRoutes/supportRoutes");
 const Account = require("./accountRoutes/accountRoutes");
 const LinkedIn = require("./linkedinRoutes/linkedinRoutes");
+const GeneratePost = require("./geminiRoutes/geminiRoutes");
 
 router.use("/auth", Auth);
 
 router.use("/auth/linkedin", LinkedIn);
 
-router.use("/api", Contact, Support, Account);
+router.use("/api", Contact, Support, Account, GeneratePost);
 
 module.exports = router;
