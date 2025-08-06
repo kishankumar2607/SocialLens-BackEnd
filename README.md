@@ -1,30 +1,36 @@
-# 🔗 LinkedIn Integration Backend
+# 📱 SocialLens – Social Media Integration Backend
 
-This is the Node.js/Express backend for a social media scheduling tool. It allows users to:
+**SocialLens** is a scalable backend service built with Node.js and Express that allows users to create and manage social media posts across multiple platforms. Currently, it supports **LinkedIn**, and it is designed to integrate with **Twitter/X, Facebook, Instagram, YouTube, and TikTok** in the future.
 
-- Authenticate using JWT
-- Connect their LinkedIn accounts
-- Post messages and images to LinkedIn
-- View posts and comments
-- Disconnect their LinkedIn account
+---
+
+## 🚀 Features
+
+- 🔐 JWT-based authentication
+- 🧠 LinkedIn integration using OAuth 2.0
+- 🖼️ Image post upload to LinkedIn
+- 📝 Comment fetching and posting
+- 🔌 Planned support for multi-platform posting (coming soon)
+- 📁 Clean, modular folder structure for easy extensibility
 
 ---
 
 ## 📦 Tech Stack
 
-- **Node.js** with **Express.js**
-- **MongoDB** with **Mongoose**
-- **JWT** for user authentication
-- **LinkedIn API** for posting and account linking
-- **Multer** for image handling (in-memory)
-- **Axios** for API requests
+- **Node.js** + **Express**
+- **MongoDB** + **Mongoose**
+- **JWT** for auth
+- **Multer** for image handling
+- **Axios** for third-party API communication
+- **LinkedIn API** for content posting
+- Future: Support for **Twitter, Facebook, Instagram, TikTok, YouTube**
 
 ---
 
-## 📁 Folder Structure
+## 📁 Project Structure
 
 ```
-/backend
+/sociallens-backend
 ├── controllers/
 │   └── linkedinController.js
 ├── middleware/
@@ -41,14 +47,15 @@ This is the Node.js/Express backend for a social media scheduling tool. It allow
 ├── utils/
 │   └── encryptDecryptData.js
 ├── app.js
+├── server.js
 └── .env
 ```
 
 ---
 
-## ⚙️ Environment Variables
+## ⚙️ Environment Setup
 
-Create a `.env` file in the root and configure the following:
+Create a `.env` file in the root:
 
 ```env
 PORT=8000
@@ -69,58 +76,39 @@ FRONTEND_URL=http://localhost:3000
 
 ---
 
-## 🚀 Running the Project
-
-### 1. Install dependencies
-
-```bash
-npm install
-```
-
-### 2. Run the server (dev mode)
-
-```bash
-npm run dev
-```
-
-Server will run on [http://localhost:8000](http://localhost:8000)
-
----
-
-## 🔐 Auth Flow
-
-- `auth_token` is stored in a cookie (or optionally sent via `Authorization` header).
-- JWT is verified via `jwtAuth` middleware.
-- LinkedIn integration is protected by `requireLinkedIn`.
-
----
-
-## 📡 LinkedIn API Routes
+## 🧪 API Endpoints (LinkedIn)
 
 | Method | Endpoint                          | Description                            |
 |--------|-----------------------------------|----------------------------------------|
 | GET    | /auth/linkedin                    | Start OAuth flow                       |
-| GET    | /auth/linkedin/callback           | Handle LinkedIn callback               |
-| POST   | /auth/linkedin/posts              | Create post with text + image          |
-| GET    | /auth/linkedin/posts              | Get posts from LinkedIn                |
-| GET    | /auth/linkedin/posts/:id/comments | Get comments for a post                |
-| POST   | /auth/linkedin/posts/:id/comments | Comment on a post                      |
-| DELETE | /auth/linkedin/unlink             | Disconnect LinkedIn account            |
+| GET    | /auth/linkedin/callback           | Handle OAuth redirect                  |
+| POST   | /auth/linkedin/posts              | Create LinkedIn post (text + image)    |
+| GET    | /auth/linkedin/posts              | Fetch user's LinkedIn posts            |
+| GET    | /auth/linkedin/posts/:id/comments | Fetch comments on a post               |
+| POST   | /auth/linkedin/posts/:id/comments | Add comment to LinkedIn post           |
+| DELETE | /auth/linkedin/unlink             | Unlink LinkedIn account from profile   |
 
 ---
 
 ## 🖼️ Image Upload
 
-Images are uploaded using LinkedIn’s [UGC Media Upload API](https://learn.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/ugc-post-api).  
-Multer is used for in-memory upload of one image per post.
+Images are uploaded to LinkedIn via their UGC API. We use `multer.memoryStorage()` to accept in-memory file uploads.
 
 ---
 
-## 📦 API Request Sample (from frontend)
+## 🧠 Authentication Flow
+
+- Users receive a **JWT** stored in cookies.
+- Protected routes use the `jwtAuth` middleware.
+- LinkedIn-authenticated users pass through `requireLinkedIn`.
+
+---
+
+## 📡 Frontend Integration Example
 
 ```js
 const formData = new FormData();
-formData.append("text", "Hello LinkedIn! #nodejs");
+formData.append("text", "Launching SocialLens 🚀 #tech");
 formData.append("image", file);
 
 await fetch("/auth/linkedin/posts", {
@@ -132,14 +120,52 @@ await fetch("/auth/linkedin/posts", {
 
 ---
 
-## ✅ Middleware Overview
+## 🔮 Future Roadmap
 
-- `jwtAuth` → Authenticates the user via cookie or `Authorization` header.
-- `requireLinkedIn` → Checks if the user has connected a LinkedIn account.
-- `upload.single("image")` → Accepts one uploaded image per post.
+✅ LinkedIn  
+🔲 Facebook  
+🔲 Instagram  
+🔲 X (Twitter)  
+🔲 TikTok  
+🔲 YouTube
 
 ---
 
-## 📖 License
+## 🧩 Middleware Used
 
-MIT License. Open to contributions and extensions.
+- `jwtAuth`: Validates the JWT from cookie or headers
+- `requireLinkedIn`: Ensures LinkedIn token and URN are set
+- `asyncHandler`: Wraps all route handlers to catch async errors
+- `multer`: Handles image uploads
+
+---
+
+## 🛠️ Run the Project
+
+### Install dependencies
+
+```bash
+npm install
+```
+
+### Start development server
+
+```bash
+npm run dev
+```
+
+App will run on: [http://localhost:8000](http://localhost:8000)
+
+---
+
+## 🤝 License
+
+MIT License  
+Open-source and ready to grow.
+
+---
+
+## 📧 Contact
+
+Want to contribute or connect to another social media platform?  
+Email: kishank2607@gmail.com
