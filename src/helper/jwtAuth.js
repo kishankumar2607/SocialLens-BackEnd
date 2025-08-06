@@ -1,11 +1,16 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel/userModel");
-const SECRET  = process.env.SECRET_KEY;
+const SECRET = process.env.SECRET_KEY;
 
 module.exports = async function jwtAuth(req, res, next) {
   try {
     // pull the raw JWT from the cookie
     const token = req.cookies.auth_token;
+
+    if (!token && req.headers.authorization?.startsWith("Bearer ")) {
+      token = req.headers.authorization.split(" ")[1];
+    }
+
     if (!token) {
       return res.status(401).json({ error: "Not signed in" });
     }
