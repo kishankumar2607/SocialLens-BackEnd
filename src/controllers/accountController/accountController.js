@@ -28,6 +28,7 @@ exports.getLinkedInAccount = async (req, res) => {
     const accountDetails = {
       id: linkedin.id || "",
       name: linkedin.name || "",
+      profileURL: linkedin.profileURL || "",
       connected: linkedin.connected || false,
     };
     res.status(200).json({
