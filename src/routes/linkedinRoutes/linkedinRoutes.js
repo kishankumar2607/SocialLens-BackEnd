@@ -4,6 +4,7 @@ const asyncHandler = require("../../config/asyncHandler");
 const requireLinkedIn = require("../../helper/requireLinkedIn");
 const LinkedInController = require("../../controllers/linkedinController/linkedinController");
 const jwtAuth = require("../../helper/jwtAuth");
+const upload = require("../../config/multer");
 
 // Kick off the link flow.  Must be logged in (JWT cookie present).
 router.get(
@@ -15,32 +16,11 @@ router.get(
 // Callback (no auth): LinkedIn posts back here
 router.get("/callback", asyncHandler(LinkedInController.handleCallback));
 
-router.get(
-  "/posts",
-  jwtAuth,
-  requireLinkedIn,
-  asyncHandler(LinkedInController.getPosts)
-);
-
-router.get(
-  "/posts/:shareId/comments",
-  jwtAuth,
-  requireLinkedIn,
-  asyncHandler(LinkedInController.getComments)
-);
-
 router.post(
-  "/posts",
+  '/posts',
   jwtAuth,
   requireLinkedIn,
-  asyncHandler(LinkedInController.createPost)
-);
-
-router.post(
-  "/posts/:shareId/comments",
-  jwtAuth,
-  requireLinkedIn,
-  asyncHandler(LinkedInController.createComment)
+  LinkedInController.createPost
 );
 
 // 4) Unlink & revoke: also protected
