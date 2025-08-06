@@ -22,6 +22,15 @@ const accountField = {
     default: "",
     trim: true,
   },
+  url: {
+    type: String,
+    default: "",
+    trim: true,
+    validate: {
+      validator: isValidUrl,
+      message: (props) => `${props.value} is not a valid URL`,
+    },
+  },
   profileURL: {
     type: String,
     default: "",
