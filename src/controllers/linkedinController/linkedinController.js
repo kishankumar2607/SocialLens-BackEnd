@@ -12,6 +12,7 @@ const {
   TOKEN_URL,
   SCOPES,
 } = require("../../config/linkedin");
+const multerUpload = require("../../config/multer");
 
 const SECRET = process.env.SECRET_KEY;
 
@@ -77,7 +78,7 @@ exports.handleCallback = async (req, res, next) => {
     });
     const claims = profileRes.data;
 
-    // console.log("LinkedIn claims:", claims);
+    console.log("LinkedIn claims:", claims);
 
     // link to user
     const user = await User.findById(linkReq.userId);
@@ -99,91 +100,104 @@ exports.handleCallback = async (req, res, next) => {
   }
 };
 
-// GET /auth/linkedin/posts
-exports.getPosts = async (req, res, next) => {
-  try {
-    const owner = encodeURIComponent(req.linkedinUrn);
-    const { data } = await axios.get(
-      `https://api.linkedin.com/v2/shares?q=owners&owners=${owner}`,
-      { headers: { Authorization: `Bearer ${req.linkedinToken}` } }
-    );
-    res.json(data);
-  } catch (err) {
-    next(err);
-  }
-};
-
-// GET /auth/linkedin/posts/:shareId/comments
-exports.getComments = async (req, res, next) => {
-  try {
-    const parent = encodeURIComponent(`urn:li:share:${req.params.shareId}`);
-    const { data } = await axios.get(
-      `https://api.linkedin.com/v2/comments?q=parent&parent=${parent}`,
-      { headers: { Authorization: `Bearer ${req.linkedinToken}` } }
-    );
-    res.json(data);
-  } catch (err) {
-    next(err);
-  }
-};
-
-// POST /auth/linkedin/posts
-exports.createPost = async (req, res, next) => {
-  try {
-    const body = {
-      author: req.linkedinUrn,
-      lifecycleState: "PUBLISHED",
-      specificContent: {
-        "com.linkedin.ugc.ShareContent": {
-          shareCommentary: { text: req.body.text },
-          shareMediaCategory: "NONE",
-        },
-      },
-      visibility: {
-        "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC",
-      },
-    };
-    const { data } = await axios.post(
-      "https://api.linkedin.com/v2/ugcPosts",
-      body,
-      {
-        headers: {
-          Authorization: `Bearer ${req.linkedinToken}`,
-          "X-Restli-Protocol-Version": "2.0.0",
-          "Content-Type": "application/json",
-        },
+exports.createPost = [
+  multerUpload.single("image"),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "Image file is required" });
       }
-    );
-    res.status(201).json(data);
-  } catch (err) {
-    next(err);
-  }
-};
 
-// POST /auth/linkedin/posts/:shareId/comments
-exports.createComment = async (req, res, next) => {
-  try {
-    const body = {
-      actor: req.linkedinUrn,
-      message: { text: req.body.text },
-      object: `urn:li:share:${req.params.shareId}`,
-    };
-    const { data } = await axios.post(
-      "https://api.linkedin.com/v2/comments",
-      body,
-      {
-        headers: {
-          Authorization: `Bearer ${req.linkedinToken}`,
-          "X-Restli-Protocol-Version": "2.0.0",
-          "Content-Type": "application/json",
-        },
+      if (!req.body.text) {
+        return res.status(400).json({ error: "Post text is required" });
       }
-    );
-    res.status(201).json(data);
-  } catch (err) {
-    next(err);
-  }
-};
+
+      const registerUploadRes = await axios.post(
+        "https://api.linkedin.com/v2/assets?action=registerUpload",
+        {
+          registerUploadRequest: {
+            recipes: ["urn:li:digitalmediaRecipe:feedshare-image"],
+            owner: `urn:li:person:${req.user.accounts.linkedin.id}`,
+            serviceRelationships: [
+              {
+                relationshipType: "OWNER",
+                identifier: "urn:li:userGeneratedContent",
+              },
+            ],
+          },
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${req.user.accounts.linkedin.accessToken}`,
+            "Content-Type": "application/json",
+            "X-Restli-Protocol-Version": "2.0.0",
+          },
+        }
+      );
+
+      const uploadUrl =
+        registerUploadRes.data.value.uploadMechanism[
+          "com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest"
+        ].uploadUrl;
+      const assetUrn = registerUploadRes.data.value.asset;
+
+      await axios.put(uploadUrl, req.file.buffer, {
+        headers: {
+          Authorization: `Bearer ${req.user.accounts.linkedin.accessToken}`,
+          "Content-Type": "application/octet-stream",
+        },
+      });
+
+      const postRes = await axios.post(
+        "https://api.linkedin.com/v2/ugcPosts",
+        {
+          author: `urn:li:person:${req.user.accounts.linkedin.id}`,
+          lifecycleState: "PUBLISHED",
+          specificContent: {
+            "com.linkedin.ugc.ShareContent": {
+              shareCommentary: {
+                text: req.body.text,
+              },
+              shareMediaCategory: "IMAGE",
+              media: [
+                {
+                  status: "READY",
+                  description: { text: "Image post" },
+                  media: assetUrn,
+                  title: { text: "Shared via MyApp" },
+                },
+              ],
+            },
+          },
+          visibility: {
+            "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC",
+          },
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${req.user.accounts.linkedin.accessToken}`,
+            "Content-Type": "application/json",
+            "X-Restli-Protocol-Version": "2.0.0",
+          },
+        }
+      );
+
+      return res.status(201).json({
+        message: "Post created successfully",
+        postId: postRes.data.id,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        error: {
+          status: 500,
+          message:
+            error.response?.data?.message || "Failed to create LinkedIn post",
+          details: error.response?.data || error.message,
+        },
+      });
+    }
+  },
+];
 
 // DELETE /auth/linkedin/unlink
 exports.deleteAccount = async (req, res, next) => {
