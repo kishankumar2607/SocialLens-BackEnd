@@ -78,16 +78,23 @@ exports.handleCallback = async (req, res, next) => {
     });
     const claims = profileRes.data;
 
-    console.log("LinkedIn claims:", claims);
+    // console.log("LinkedIn claims:", claims);
+
+    if (!claims || !claims.sub) {
+      return res.status(500).send("No user info returned from LinkedIn");
+    }
 
     // link to user
     const user = await User.findById(linkReq.userId);
     if (!user) return res.status(404).send("User not found");
 
+    const linkedInURL = `https://www.linkedin.com/in/${claims.sub}`;
+
     user.accounts.linkedin = {
       id: claims.sub || "",
       name: claims.name || "",
-      profileURL: "",
+      url: linkedInURL || "",
+      profileURL: claims.picture || "",
       connected: true,
       accessToken,
     };
