@@ -18,20 +18,13 @@ const allRoutes = require("./routes/mainRoutes");
 
 // const allowedOrigins = ["http://localhost:3000"];
 
-// app.use(
-//   cors({
-//     origin: function (origin, callback) {
-//       if (!origin || allowedOrigins.includes(origin)) {
-//         callback(null, true);
-//       } else {
-//         callback(new Error("Not allowed by CORS"));
-//       }
-//     },
-//     credentials: true,
-//   })
-// );
-
-app.use(cors({ origin: true, credentials: true }));
+app.use(cors({
+  origin: [
+    'https://api.sociallens.kishankumardas.com',
+    'http://localhost:8000'
+  ],
+  credentials: true
+}));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

@@ -80,10 +80,11 @@ exports.login = async (req, res, next) => {
 
     res.cookie("auth_token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/", // ensures it's sent on all routes
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
+      secure: true,
+      sameSite: "None",
+      domain: ".kishankumardas.com",
+      path: "/",
+      maxAge: 60 * 24 * 60 * 60 * 1000,
     });
 
     await user.save();
