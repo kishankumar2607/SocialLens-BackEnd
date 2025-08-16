@@ -9,15 +9,6 @@ const createError = require("http-errors");
 const cookieParser = require("cookie-parser");
 const allRoutes = require("./routes/mainRoutes");
 
-// app.use(
-//   cors({
-//     origin: process.env.FRONTEND_URL,
-//     credentials: true,
-//   })
-// );
-
-// const allowedOrigins = ["http://localhost:3000"];
-
 app.use(cors({
   origin: [
     'https://devsociallens.netlify.app',
