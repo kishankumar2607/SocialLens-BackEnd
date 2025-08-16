@@ -20,8 +20,8 @@ const allRoutes = require("./routes/mainRoutes");
 
 app.use(cors({
   origin: [
-    'https://api.sociallens.kishankumardas.com',
-    'http://localhost:8000'
+    'https://devsociallens.netlify.app',
+    'http://localhost:3000'
   ],
   credentials: true
 }));
